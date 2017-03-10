@@ -8,4 +8,7 @@ setup (
   [pygments.lexers]
   lilypondlexer = lilypondlexer.lilypond:LilyPondLexer
   """,
+  # append to string above to include other lexers, like:
+  # lilyfoolexer = lilypondlexer.lilypond:LilyFooLexer
+  # where alias = <sub dir>.<lexer file>:<unique class name>
 )
