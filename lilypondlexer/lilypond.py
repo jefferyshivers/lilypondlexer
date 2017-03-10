@@ -41,7 +41,6 @@ class LilyPondLexer(RegexLexer):
             (r'(\=|\:|\:\:)', Operator)
         ],
 
-
         'comment': [
             (r'[^%\}]', Comment.Multiline),
             (r'%\{', Comment.Multiline, '#push'),
@@ -53,7 +52,7 @@ class LilyPondLexer(RegexLexer):
             (r'(\s*|.+?)(\()',
                 bygroups(using(SchemeLexer), Punctuation),
                 '#push'),
-            (r'(.+?)(\))(.*|.*$)',
+            (r'(.*)(\))(.*|.*$)',
                 bygroups(using(SchemeLexer), Punctuation),
                 '#pop'),
 
