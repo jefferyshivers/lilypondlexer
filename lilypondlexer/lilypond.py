@@ -25,8 +25,15 @@ class LilyPondLexer(RegexLexer):
             (r'%\{', Comment.Multiline, 'comment'),
             (r'%.*$', Comment.Single),
             (r'\\[a-zA-Z]*\s*', Name.Function),
-            (r'\s*[a-g]\s*', Name.Builtin),
-            (r'[a-g]\s*', Name.Builtin),
+
+            # notes (pitches)
+            (r'[a-g][^a-zA-Z]\s*', Name.Builtin),
+
+            # symbols
+            # TODO
+
+            # other non-strings
+            (r'\s*[a-zA-Z]+\s*', Keyword),
 
             # push scheme mode
             (r'\s*#\(\s*', Punctuation, 'scm-content'),
@@ -34,11 +41,12 @@ class LilyPondLexer(RegexLexer):
             (r'\s*#\'', Punctuation),
 
             # common notations
-            (r'(\{|\}|\(|\)|\[|\])', Punctuation),
+            (r'(\/|\{|\}|\(|\)|\[|\])', Punctuation),
             (r'(\.|\,|\'|\-|\|)', Punctuation),
             (r'\s*[a-g]\s*', Keyword),
             (r'\d+', Number.Integer),
-            (r'(\=|\:|\:\:)', Operator)
+            (r'(\=|\:|\:\:)', Operator),
+            (r'(\")(.+?)(\")', String)
         ],
 
         'comment': [
