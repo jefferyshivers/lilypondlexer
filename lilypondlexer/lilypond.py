@@ -81,12 +81,17 @@ class LilyPondLexer(RegexLexer):
 
             # push scheme mode
             (r'\s*#\(\s*', Punctuation, 'scm-content'),
-            # scheme quotes
-            (r'(#)(#)(t|f)', Text),
+            (r'\s*#(\'|\`)\(\s*', Punctuation, 'scm-content'),
+
+            # scheme boolean
+            #(r'(#)(#)(t|f)', Text),
+
+            # single scheme tokens
+            (r'\s*#[^\(\`\']', Punctuation, 'scm-item'),
 
             # common notations
             (r'(\#|\/|\{|\}|\(|\)|\[|\])', Punctuation),
-            (r'(\.|\,|\'|\`|\-|\|)', Punctuation),
+            (r'(\.|\,|\'|\`|\-|\_|\|)', Punctuation),
             (r'\d+', Number.Integer),
             (r'\d+\.\d+', Number.Float),
             (r'(\=|\:|\:\:)', Operator),
@@ -100,16 +105,24 @@ class LilyPondLexer(RegexLexer):
             (r'[%\}]', Comment.Multiline)
         ],
 
+        # scheme within parens
         'scm-content': [
+            (r'\s+', Text),
+            (r';.*$', Comment.Single),
             (r'(\s*|.+?)(\()',
                 bygroups(using(SchemeLexer), Punctuation),
                 '#push'),
             (r'(.*)(\))(.*|.*$)',
                 bygroups(using(SchemeLexer), Punctuation),
-                '#pop'),
-
+                '#pop')
             # TODO add #{ and #} tokens to push/pop embedded LP (root) mode to stack
+        ],
 
+        # single scheme tokens
+        'scm-item': [
+            (r'(.*)(\s*|\s*$)',
+                bygroups(using(SchemeLexer), Punctuation),
+                '#pop')
         ]
 
     }
