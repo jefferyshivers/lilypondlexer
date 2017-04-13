@@ -75,7 +75,6 @@ class LilyPondLexer(RegexLexer):
             # other non-strings
             (r'[a-z][a-z]+', Text),
 
-
             # notes (pitches)
             (r'[a-g]+?', Name.Builtin),
 
@@ -83,11 +82,11 @@ class LilyPondLexer(RegexLexer):
             (r'\s*#\(\s*', Punctuation, 'scm-content'),
             (r'\s*#(\'|\`)\(\s*', Punctuation, 'scm-content'),
 
-            # scheme boolean
-            #(r'(#)(#)(t|f)', Text),
-
             # single scheme tokens
-            (r'\s*#[^\(\`\']', Punctuation, 'scm-item'),
+            (r'\s*#[^\(\`\'\}]', Punctuation, 'scm-item'),
+
+            # #} to pop root mode & go back into embedded scm-content
+            (r'#\}', Punctuation, '#pop'),
 
             # common notations
             (r'(\#|\/|\{|\}|\(|\)|\[|\])', Punctuation),
@@ -114,8 +113,9 @@ class LilyPondLexer(RegexLexer):
                 '#push'),
             (r'(.*)(\))(.*|.*$)',
                 bygroups(using(SchemeLexer), Punctuation),
-                '#pop')
-            # TODO add #{ and #} tokens to push/pop embedded LP (root) mode to stack
+                '#pop'),
+            # #{ to push embedded LP (root) mode to stack
+            (r'#\{', Punctuation, 'root')
         ],
 
         # single scheme tokens
