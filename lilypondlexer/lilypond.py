@@ -139,6 +139,7 @@ class LilyPondLexer(RegexLexer):
 
             # uncap/capitalized symbols
             (r'[a-zA-Z][a-zA-Z]+\s*', Keyword),
+            (r'(\")(.+?)(\")', String.Single),
 
             # other non-strings
             (r'[a-z][a-z]+', Text),
@@ -147,22 +148,31 @@ class LilyPondLexer(RegexLexer):
             (r'[a-g]+?', Name.Builtin),
 
             # push scheme mode
-            (r'\s*#\(\s*', Punctuation, 'scm-content'),
-            (r'\s*#(\'|\`)\(\s*', Punctuation, 'scm-content'),
+            # ... this must stay before string/token below ...
+            #(r'\s*#\(\s*', Punctuation, 'scm-content'),
+            (r'\s*\#\(', Punctuation, 'scm-content'),
+            #(r'\s*#(\'|\`)\(\s*', Punctuation, 'scm-content'),
+            (r'\s*\#(\'|\`)(\()', Punctuation, 'scm-content'),
 
-            # single scheme tokens
-            (r'\s*#[^\(\`\'\}]', Punctuation, 'scm-item'),
+            # single scheme string ...
+            #    #"string" <-- "
+            (r'\s*\#\"', Punctuation, 'scm-string'),
+
+            # single scheme tokens that aren't strings ...
+            #    #anything <-- ends at whitespace
+            # ... not followed by open paren
+            #(r'\s*#[^\(\`\'\}]', Punctuation, 'scm-item'),
+            (r'\s*\#', Punctuation, 'scm-item'),
 
             # #} to pop root mode & go back into embedded scm-content
-            (r'#\}', Punctuation, '#pop'),
+            (r'\#\}', Punctuation, '#pop'),
 
-            # common notations
+            # everything else
             (r'(\#|\/|\{|\}|\(|\)|\[|\]\<\>)', Punctuation),
             (r'(\.|\,|\'|\`|\-|\_|\|)', Punctuation),
             (r'\d+', Number.Integer),
             (r'\d+\.\d+', Number.Float),
-            (r'(\=|\:|\:\:)', Operator),
-            (r'(\")(.+?)(\")', String.Single)
+            (r'(\=|\:|\:\:)', Operator)
         ],
 
         'comment': [
@@ -176,6 +186,7 @@ class LilyPondLexer(RegexLexer):
         'scm-content': [
             (r'\s+', Text),
             (r';.*$', Comment.Single),
+            (r'(\")(.*)(\")', String.Single),
             (r'(\s*|.+?)(\()',
                 bygroups(using(SchemeLexer), Punctuation),
                 '#push'),
@@ -183,10 +194,19 @@ class LilyPondLexer(RegexLexer):
                 bygroups(using(SchemeLexer), Punctuation),
                 '#pop'),
             # #{ to push embedded LP (root) mode to stack
-            (r'#\{', Punctuation, 'root')
+            (r'\#\{', Punctuation, 'root')
         ],
 
-        # single scheme tokens
+        # single scheme string ...
+        #    #"string" <-- "
+        'scm-string': [
+            (r'(.*)(\"|\"$)',
+                bygroups(using(SchemeLexer), Punctuation),
+                '#pop')
+        ],
+
+        # single scheme tokens that aren't strings ...
+        #    #anything <-- ends at whitespace
         'scm-item': [
             (r'(.*)(\s*|\s*$)',
                 bygroups(using(SchemeLexer), Punctuation),
